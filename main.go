@@ -1,15 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/Sreethecool/filestore/client"
-	"github.com/Sreethecool/filestore/command"
+	"github.com/Sreethecool/filestore/server"
 )
 
 func main() {
-
-	fmt.Println(command.Execute("ls", []string{}))
-	client.Start()
-
+	server.RunServer()
 }
