@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Sreethecool/filestore/server/types"
+	"github.com/Sreethecool/filestore/server/models"
 	"github.com/labstack/echo/v4"
 )
 
 func Upload(c echo.Context) error {
-	resp := types.Response{}
+	resp := models.Response{}
 	errors := map[string]string{}
 	form, err := c.MultipartForm()
 	if err != nil {
