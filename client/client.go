@@ -16,7 +16,18 @@ import (
 	"github.com/Sreethecool/filestore/server/utils"
 )
 
-func Start() {
+type client struct {
+	url string
+}
+
+func GetClient(url string) *client {
+	cli := client{
+		url: url,
+	}
+	return &cli
+}
+
+func (c *client) Start() {
 	fmt.Println("File store Operations")
 	for {
 		fmt.Print("$")
@@ -35,17 +46,17 @@ func Start() {
 			action := strings.ToLower(args[1])
 			switch action {
 			case "add":
-				fmt.Println(CallUpload(args))
+				fmt.Println(c.callUpload(args))
 			case "ls":
-				fmt.Println(CallList(args))
+				fmt.Println(c.callList(args))
 			case "rm":
-				fmt.Println(CallRemove(args))
+				fmt.Println(c.callRemove(args))
 			case "update":
-				fmt.Println(CallUpdate(args))
+				fmt.Println(c.callUpdate(args))
 			case "wc":
-				fmt.Println(CallWordCount(args))
+				fmt.Println(c.callWordCount(args))
 			case "freq-words":
-				fmt.Println(CallFrequentWords(args))
+				fmt.Println(c.callFrequentWords(args))
 			default:
 				fmt.Println("Action Command Not found")
 			}
@@ -53,13 +64,13 @@ func Start() {
 	}
 }
 
-func CallUpload(args []string) string {
+func (c *client) callUpload(args []string) string {
 
 	if len(args) < 3 {
 		return "Error: Not enough arguments"
 	}
 	args = args[2:]
-	ls := CallList(args)
+	ls := c.callList(args)
 	if strings.Contains(ls, "Error") {
 		return "Error: Failed to Get the list of files"
 	}
@@ -70,16 +81,16 @@ func CallUpload(args []string) string {
 		}
 	}
 
-	res := uploadFiles(args)
+	res := c.uploadFiles(args)
 	if strings.Contains(res, "Error") {
 		return res
 	}
 	return "Upload Sucess"
 }
 
-func CallList(args []string) string {
+func (c *client) callList(args []string) string {
 
-	url := "http://localhost:8080/list"
+	url := c.url + "/list"
 	method := "GET"
 
 	client := &http.Client{}
@@ -97,17 +108,17 @@ func CallList(args []string) string {
 	if err != nil {
 		return "Error: Failed to Read Response"
 	}
-	return getResponse(body)
+	return c.getResponse(body)
 }
 
-func CallRemove(args []string) string {
+func (c *client) callRemove(args []string) string {
 
 	if len(args) > 3 {
 		return "Error: syntax error: rm <filename> cannot delete multiple files."
 	} else if args[2] == "" {
 		return "Error: syntax error: file missing."
 	}
-	ls := CallList(args)
+	ls := c.callList(args)
 	if strings.Contains(ls, "Error") {
 		return "Error: Failed to Get the list of files"
 	}
@@ -119,7 +130,7 @@ func CallRemove(args []string) string {
 		}
 	}
 
-	url := "http://localhost:8080/delete"
+	url := c.url + "/delete"
 	method := "POST"
 
 	var request models.DeleteRequest
@@ -144,34 +155,34 @@ func CallRemove(args []string) string {
 	return "File removed from Server"
 }
 
-func CallUpdate(args []string) string {
+func (c *client) callUpdate(args []string) string {
 	if len(args) < 3 {
 		return "Error: Not enough arguments"
 	}
 	args = args[2:]
-	res := uploadFiles(args)
+	res := c.uploadFiles(args)
 	if strings.Contains(res, "Error") {
 		return res
 	}
 	return "Update Sucess"
 }
 
-func CallWordCount(args []string) string {
+func (c *client) callWordCount(args []string) string {
 	if len(args) > 2 {
 		return "Error: wc should not have arguments"
 	}
-	return callExecute("wc", []string{})
+	return c.callExecute("wc", []string{})
 }
 
-func CallFrequentWords(args []string) string {
+func (c *client) callFrequentWords(args []string) string {
 	if len(args) > 6 {
 		return "Error: Have more arguments"
 	}
-	return callExecute("freq-words", args[2:])
+	return c.callExecute("freq-words", args[2:])
 }
 
-func callExecute(cmd string, args []string) string {
-	url := "http://localhost:8080/run"
+func (c *client) callExecute(cmd string, args []string) string {
+	url := c.url + "/run"
 	method := "POST"
 
 	var request models.ExecuteRequest
@@ -198,11 +209,11 @@ func callExecute(cmd string, args []string) string {
 	if err != nil {
 		return "Error: Failed to Read Response"
 	}
-	return getResponse(body)
+	return c.getResponse(body)
 }
-func uploadFiles(args []string) string {
+func (c *client) uploadFiles(args []string) string {
 
-	url := "http://localhost:8080/upload"
+	url := c.url + "/upload"
 	method := "POST"
 
 	payload := &bytes.Buffer{}
@@ -243,7 +254,7 @@ func uploadFiles(args []string) string {
 
 	return "Sucess"
 }
-func getResponse(body []byte) string {
+func (c *client) getResponse(body []byte) string {
 	var resp models.Response
 	json.Unmarshal(body, &resp)
 	return resp.Data.(string)
