@@ -8,6 +8,7 @@ import (
 
 	"github.com/Sreethecool/filestore/server/command"
 	"github.com/Sreethecool/filestore/server/models"
+	"github.com/Sreethecool/filestore/server/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -61,9 +62,19 @@ func Execute(c echo.Context) error {
 		resp.Message = "Invalid Request"
 		return c.JSON(http.StatusBadRequest, resp)
 	}
+	path := "upload/"
+	isEmpty, err := utils.IsDirEmpty(path)
+	if err != nil {
+		resp.Message = "unable to process request"
+		return c.JSON(http.StatusInternalServerError, resp)
+	} else if isEmpty {
+		resp.Message = "Request Processed"
+		resp.Data = "Directory is Empty"
+		return c.JSON(http.StatusOK, resp)
+	}
 	t := template.Must(template.New("command").Parse(temp))
 	param := map[string]string{
-		"folder": "upload/",
+		"folder": path,
 		"count":  "10",
 		"order":  "head",
 	}
@@ -73,12 +84,14 @@ func Execute(c echo.Context) error {
 			param["count"] = req.Args[i+1]
 			i++
 		} else if req.Args[i] == "--order" && i < len(req.Args)-1 {
-			param["order"] = req.Args[i+1]
+			if strings.ToLower(req.Args[i+1]) == "dsc" {
+				param["order"] = "tail"
+			}
 			i++
 		}
 	}
 	var out bytes.Buffer
-	err := t.Execute(&out, param)
+	err = t.Execute(&out, param)
 	if err != nil {
 		resp.Message = "Unable to process request"
 		c.JSON(http.StatusInternalServerError, resp)

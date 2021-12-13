@@ -14,7 +14,7 @@ type DeleteRequest struct {
 	Filename string `json:"filename"`
 }
 
-var CmdList = []string{"ls", "rm", "wc", "cat", "tr", "sort", "uniq", "tail"}
+var CmdList = []string{"ls", "rm", "wc", "cat", "tr", "sort", "uniq", "tail", "head", "cut"}
 
 var CmdTemplate = map[string]string{
 	"wc":         "wc -w {{.folder}}* | tail -1 | cut -d ' ' -f1",
