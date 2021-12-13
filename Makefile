@@ -3,17 +3,17 @@ BINARY ?= filestore
 .PHONY: go-build
 go-build:
 	@echo "Build project binaries..."
-	go build -o $(BINARY) -v main.go
+	GO111MODULE=on go build -o $(BINARY) -v main.go
 
 .PHONY: run
 run:
 	@echo "Run..."
-	go run main.go
+	GO111MODULE=on go run main.go
 
 .PHONY: build
 build: go-build 
 	@echo "Build docker image..."
-	docker build --tag sreethecool2/$(IMAGE):latest $(BUILD_CONTEXT)
+	docker build --tag sreethecool2/$(IMAGE):latest ./
 
 .PHONY: push
 push:

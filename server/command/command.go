@@ -29,7 +29,6 @@ func Execute(statement string) (string, error) {
 		}
 	}
 	count := len(execCommands)
-	fmt.Println(count)
 	pipes := make([]*io.PipeWriter, count)
 	for i := 0; i < count-1; i++ {
 		r, w := io.Pipe()

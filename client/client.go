@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -32,13 +33,16 @@ func (c *client) Start() {
 	for {
 		fmt.Print("$")
 		var ln string
-		fmt.Scanln(&ln)
-		if ln == "exit" {
-			break
+		scanner := bufio.NewScanner(os.Stdin)
+		if scanner.Scan() {
+			ln = scanner.Text()
 		}
 		args := strings.Split(ln, " ")
 		cmd := strings.ToLower(args[0])
 		if cmd != "store" {
+			if cmd == "exit" {
+				break
+			}
 			fmt.Println("Command not found")
 		} else if len(args) < 2 {
 			fmt.Println("Not enough arguments")
@@ -77,7 +81,7 @@ func (c *client) callUpload(args []string) string {
 	files := strings.Split(ls, "\n")
 	for _, v := range args {
 		if utils.Contains(files, v) {
-			return fmt.Sprintf("Error: One of the File %s already Present in server. To check list of Files in server use ls.", v)
+			return "Error: One or More files already Present in server. To check list of Files in server use ls."
 		}
 	}
 
@@ -126,7 +130,7 @@ func (c *client) callRemove(args []string) string {
 	files := strings.Split(ls, "\n")
 	for _, v := range args {
 		if !utils.Contains(files, v) {
-			return fmt.Sprintf("Error: Some Files %s are not found in server. To check the list of files use ls", v)
+			return "Error: Some Files are not found in server. To check the list of files use ls"
 		}
 	}
 

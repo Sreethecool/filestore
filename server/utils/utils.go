@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Sreethecool/filestore/server/models"
@@ -22,4 +24,13 @@ func Contains(list []string, key string) bool {
 		}
 	}
 	return false
+}
+
+func CreateDirIfNotExists(dirName string) error {
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err := os.Mkdir(dirName, os.ModePerm)
+		if err != nil {
+			fmt.Println("Cant create upload folder")
+		}
+	}
 }

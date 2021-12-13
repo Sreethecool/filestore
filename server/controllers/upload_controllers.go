@@ -28,14 +28,6 @@ func Upload(c echo.Context) error {
 		defer src.Close()
 
 		path := "upload/"
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			err := os.Mkdir(path, os.ModePerm)
-			if err != nil {
-				fmt.Println("Cant create upload folder")
-				path = "./"
-			}
-		}
-
 		dst, err := os.OpenFile(path+file.Filename, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Println("Cant Open/create File", index, err.Error())

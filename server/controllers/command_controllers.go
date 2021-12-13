@@ -34,7 +34,7 @@ func Delete(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 
-	cmd := "rm " + req.Filename
+	cmd := "rm upload/" + req.Filename
 
 	_, err := command.Execute(cmd)
 	if err != nil {

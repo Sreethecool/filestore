@@ -4,10 +4,16 @@ import (
 	"net/http"
 
 	"github.com/Sreethecool/filestore/server/controllers"
+	"github.com/Sreethecool/filestore/server/utils"
 	"github.com/labstack/echo/v4"
 )
 
+func initServer() {
+	utils.CreateDirIfNotExists("upload/")
+}
+
 func RunServer() {
+	initServer()
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "Welcome to File Store Service")

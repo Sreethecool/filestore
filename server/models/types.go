@@ -18,5 +18,5 @@ var CmdList = []string{"ls", "rm", "wc", "cat", "tr", "sort", "uniq", "tail"}
 
 var CmdTemplate = map[string]string{
 	"wc":         "wc -w {{.folder}}* | tail -1 | cut -d ' ' -f1",
-	"freq-words": "cat {{.folder}}* | tr -s ' ' '\n' | sort | uniq -c | sort -n | {{.order}} -n {{.count}}",
+	"freq-words": "cat {{.folder}}* | tr -s ' ' '\\n' | sort | uniq -c | sort -n | {{.order}} -n {{.count}}",
 }
