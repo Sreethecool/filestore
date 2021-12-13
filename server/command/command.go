@@ -11,6 +11,7 @@ import (
 )
 
 //Runs the given command and returns the output
+//Handles Piped commands for word count
 func Execute(statement string) (string, error) {
 	statement = strings.Replace(statement, "| ", "|", -1)
 	statement = strings.Replace(statement, " |", "|", -1)
