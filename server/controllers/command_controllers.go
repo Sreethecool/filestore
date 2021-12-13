@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -18,6 +19,7 @@ func List(c echo.Context) error {
 	cmd := "ls upload/"
 	res, err := command.Execute(cmd)
 	if err != nil {
+		fmt.Println("Cant Run ls", err.Error())
 		resp.Message = "Unable to get the list"
 		c.JSON(http.StatusInternalServerError, resp)
 	}
@@ -32,6 +34,7 @@ func Delete(c echo.Context) error {
 	var resp models.Response
 	if err := c.Bind(&req); err != nil {
 		resp.Message = "Invalid Data"
+		fmt.Println("Cant parse delete input:", err.Error())
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 
@@ -39,6 +42,7 @@ func Delete(c echo.Context) error {
 
 	_, err := command.Execute(cmd)
 	if err != nil {
+		fmt.Println("Cant Run rm", err.Error())
 		resp.Message = "Unable to delete the file"
 		c.JSON(http.StatusInternalServerError, resp)
 	}
@@ -51,6 +55,7 @@ func Execute(c echo.Context) error {
 	var req models.ExecuteRequest
 	var resp models.Response
 	if err := c.Bind(&req); err != nil {
+		fmt.Println("cant bind run command body", err.Error())
 		resp.Message = "Invalid Data"
 		return c.JSON(http.StatusBadRequest, resp)
 	}
@@ -59,12 +64,14 @@ func Execute(c echo.Context) error {
 	found := false
 	cmd := strings.ToLower(req.Cmd)
 	if temp, found = models.CmdTemplate[cmd]; !found {
+		fmt.Println("command not listed in template")
 		resp.Message = "Invalid Request"
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 	path := "upload/"
 	isEmpty, err := utils.IsDirEmpty(path)
 	if err != nil {
+		fmt.Println("Cant check directory: ", err.Error())
 		resp.Message = "unable to process request"
 		return c.JSON(http.StatusInternalServerError, resp)
 	} else if isEmpty {
@@ -93,12 +100,14 @@ func Execute(c echo.Context) error {
 	var out bytes.Buffer
 	err = t.Execute(&out, param)
 	if err != nil {
+		fmt.Println("Cant execute template to get command", err.Error())
 		resp.Message = "Unable to process request"
 		c.JSON(http.StatusInternalServerError, resp)
 	}
 
 	res, err := command.Execute(out.String())
 	if err != nil {
+		fmt.Println("Cant Run command", err.Error())
 		resp.Message = "Unable to process request"
 		c.JSON(http.StatusInternalServerError, resp)
 	}

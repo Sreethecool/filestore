@@ -42,7 +42,7 @@ func Execute(statement string) (string, error) {
 	execCommands[count-1].Stdout = &out
 	execCommands[count-1].Stderr = &error_buffer
 	if err := run(execCommands, pipes); err != nil {
-		fmt.Println(error_buffer.String())
+		fmt.Println("error in running pipes", error_buffer.String())
 		return "", err
 	}
 	return out.String(), nil
@@ -51,11 +51,13 @@ func Execute(statement string) (string, error) {
 func run(stack []*exec.Cmd, pipes []*io.PipeWriter) (err error) {
 	if stack[0].Process == nil {
 		if err = stack[0].Start(); err != nil {
+			fmt.Println("Error in Starting run")
 			return err
 		}
 	}
 	if len(stack) > 1 {
 		if err = stack[1].Start(); err != nil {
+			fmt.Println("Error in Starting second run ")
 			return err
 		}
 		defer func() {

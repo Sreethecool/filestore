@@ -15,6 +15,7 @@ func Upload(c echo.Context) error {
 	errors := map[string]string{}
 	form, err := c.MultipartForm()
 	if err != nil {
+		fmt.Println("Cant Get multipart form", err.Error())
 		resp.Message = "Invalid Input File data"
 		return c.JSON(http.StatusBadRequest, resp)
 	}
@@ -22,6 +23,7 @@ func Upload(c echo.Context) error {
 	for index, file := range files {
 		src, err := file.Open()
 		if err != nil {
+			fmt.Println("Cant open file ", err.Error())
 			errors[file.Filename] = fmt.Sprintf("Cant read input file %d", index)
 			continue
 		}
@@ -30,7 +32,7 @@ func Upload(c echo.Context) error {
 		path := "upload/"
 		dst, err := os.OpenFile(path+file.Filename, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			fmt.Println("Cant Open/create File", index, err.Error())
+			fmt.Println("Cant Create file inside upload", index, err.Error())
 			resp.Message = "Error in Uploading"
 			errors[file.Filename] = fmt.Sprintf("Cant create file file %d", index)
 			continue
@@ -49,6 +51,8 @@ func Upload(c echo.Context) error {
 
 	if len(errors) > 0 {
 		resp.Message = fmt.Sprintf("Error in Uploading %d files out of %d files", len(errors), len(files))
+		fmt.Println(resp.Message)
+		fmt.Println("Error in uploading", errors)
 		resp.Data = errors
 		return c.JSON(http.StatusAccepted, resp)
 	}
